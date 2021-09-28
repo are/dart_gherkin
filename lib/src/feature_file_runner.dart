@@ -335,7 +335,7 @@ class FeatureFileRunner {
       );
     }
 
-    await _hook.onAfterStep(world, step.name, result);
+    result = await _hook.onAfterStep(world, step.name, result) ?? result;
     await _reporter.onStepFinished(
       StepFinishedMessage(
         step.name,

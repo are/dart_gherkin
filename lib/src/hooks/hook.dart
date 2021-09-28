@@ -45,6 +45,7 @@ abstract class Hook {
   Future<void> onBeforeStep(World world, String step) => Future.value(null);
 
   /// Run after a step has executed
-  Future<void> onAfterStep(World world, String step, StepResult stepResult) =>
+  Future<StepResult?> onAfterStep(
+          World world, String step, StepResult stepResult) =>
       Future.value(null);
 }

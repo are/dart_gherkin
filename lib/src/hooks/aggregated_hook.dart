@@ -77,12 +77,19 @@ class AggregatedHook extends Hook {
 
   /// Run after a step has executed
   @override
-  Future<void> onAfterStep(
+  Future<StepResult?> onAfterStep(
     World world,
     String step,
     StepResult result,
-  ) async =>
-      await _invokeHooks((h) => h.onAfterStep(world, step, result));
+  ) async {
+    var tempResult = result;
+
+    await _invokeHooks((h) async {
+      tempResult = await h.onAfterStep(world, step, tempResult) ?? result;
+    });
+
+    return tempResult;
+  }
 
   Future<void> _invokeHooks(
     Future<void> Function(Hook h) invoke,

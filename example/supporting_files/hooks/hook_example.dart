@@ -46,7 +46,7 @@ class HookExample extends Hook {
 
   /// Run after a step has executed
   @override
-  Future<void> onAfterStep(
+  Future<StepResult?> onAfterStep(
       World world, String step, StepResult stepResult) async {
     print("running hook after step '$step'");
 
