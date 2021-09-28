@@ -24,16 +24,24 @@ class FeatureFileVisitor {
         _tagsToList(feature.tags),
       );
 
-      for (final scenario in feature.scenarios) {
+      for (var i = 0; i < feature.scenarios.length; i += 1) {
+        final scenario = feature.scenarios.elementAt(i);
+        final isFirst = i == 0;
+        final isLast = i == (feature.scenarios.length - 1);
         final allScenarios = scenario is ScenarioOutlineRunnable
             ? scenario.expandOutlinesIntoScenarios()
             : [scenario];
+        var acknowledgedScenarioPosition = false;
 
-        for (final childScenario in allScenarios) {
+        for (var childScenario in allScenarios) {
           await visitScenario(
             childScenario.name,
             _tagsToList(childScenario.tags),
+            acknowledgedScenarioPosition ? false : isFirst,
+            acknowledgedScenarioPosition ? false : isLast,
           );
+
+          acknowledgedScenarioPosition = true;
 
           if (feature.background != null) {
             final bg = feature.background;
@@ -70,6 +78,8 @@ class FeatureFileVisitor {
   Future<void> visitScenario(
     String name,
     Iterable<String> tags,
+    bool isFirst,
+    bool isLast,
   ) async {}
 
   Future<void> visitScenarioStep(

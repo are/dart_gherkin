@@ -1,3 +1,25 @@
+## [2.0.5+1] - 15/09/2021
+
+* Fixed first/last flag on `FeatureFileVisitor`
+* Fixed find feature files regex pattern fdr windows in example project
+
+## [2.0.5] - 15/09/2021
+
+* Added json reporter test case for multi-scenario
+* Added first/last flag on `FeatureFileVisitor`
+
+## [2.0.4] - 21/06/2021
+
+* Fixed late initialization error when invoking hooks
+
+## [2.0.3] - 01/06/2021
+
+* Updated float parameter parser so an exception is not thrown during parsing
+
+## [2.0.2] - 25/05/2021
+
+* Fix #45 executing feature files outside of the current working directory
+
 ## [2.0.1] - 02/05/2021
 
 * BREAKING CHANGE: `TestFailure` is no longer thrown when an `expect` fails. Instead, use `GherkinTestFailure` when catching errors (i.e. replace `on TestFailure catch` with `on GherkinTestFailure catch`) (#37).
