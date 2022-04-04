@@ -58,9 +58,7 @@ class FeatureFileRunner {
           feature.debug,
           feature.tags.isNotEmpty
               ? feature.tags
-                  .map((t) => t.tags
-                      .map((c) => Tag(c, t.debug.lineNumber, t.isInherited))
-                      .toList())
+                  .map((t) => t.tags.map((c) => Tag(c, t.debug.lineNumber, t.isInherited)).toList())
                   .reduce((a, b) => a..addAll(b))
                   .toList()
               : Iterable<Tag>.empty().toList(),
@@ -74,8 +72,7 @@ class FeatureFileRunner {
 
       for (final scenario in feature.scenarios) {
         if (_canRunScenario(_config.tagExpression, scenario)) {
-          haveAllScenariosPassed &=
-              await _runScenarioInZone(scenario, feature.background);
+          haveAllScenariosPassed &= await _runScenarioInZone(scenario, feature.background);
           if (_config.stopAfterTestFailed && !haveAllScenariosPassed) {
             break;
           }
@@ -130,10 +127,7 @@ class FeatureFileRunner {
         : _tagExpressionEvaluator.evaluate(
             tagExpression,
             scenario.tags.isNotEmpty
-                ? scenario.tags
-                    .map((t) => t.tags.toList())
-                    .reduce((a, b) => a..addAll(b))
-                    .toList()
+                ? scenario.tags.map((t) => t.tags.toList()).reduce((a, b) => a..addAll(b)).toList()
                 : Iterable<String>.empty().toList(),
           );
   }
@@ -181,9 +175,7 @@ class FeatureFileRunner {
     var scenarioPassed = true;
     final tags = scenario.tags.isNotEmpty
         ? scenario.tags
-            .map((t) => t.tags
-                .map((tag) => Tag(tag, t.debug.lineNumber, t.isInherited))
-                .toList())
+            .map((t) => t.tags.map((tag) => Tag(tag, t.debug.lineNumber, t.isInherited)).toList())
             .reduce((a, b) => a..addAll(b))
             .toList()
         : Iterable<Tag>.empty();
@@ -201,26 +193,27 @@ class FeatureFileRunner {
       }
 
       world.setAttachmentManager(attachmentManager);
-      await _hook.onAfterScenarioWorldCreated(
-        world,
-        scenario.name,
-        tags,
-      );
+
+      try {
+        await _hook.onAfterScenarioWorldCreated(
+          world,
+          scenario,
+          tags,
+        );
+      } catch (e) {
+        scenarioPassed = false;
+      }
 
       await _hook.onBeforeScenario(_config, scenario.name, tags);
 
       await _reporter.onScenarioStarted(
         StartedMessage(
-          scenario.scenarioType == ScenarioType.scenario_outline
-              ? Target.scenario_outline
-              : Target.scenario,
+          scenario.scenarioType == ScenarioType.scenario_outline ? Target.scenario_outline : Target.scenario,
           scenario.name,
           scenario.debug,
           scenario.tags.isNotEmpty
               ? scenario.tags
-                  .map((t) => t.tags
-                      .map((tag) => Tag(tag, t.debug.lineNumber, t.isInherited))
-                      .toList())
+                  .map((t) => t.tags.map((tag) => Tag(tag, t.debug.lineNumber, t.isInherited)).toList())
                   .reduce((a, b) => a..addAll(b))
                   .toList()
               : Iterable<Tag>.empty().toList(),
@@ -237,6 +230,7 @@ class FeatureFileRunner {
           final result = await _runStep(
             step,
             world,
+            scenario,
             attachmentManager,
             !scenarioPassed,
           );
@@ -253,8 +247,7 @@ class FeatureFileRunner {
       }
 
       for (var step in scenario.steps) {
-        final result =
-            await _runStep(step, world, attachmentManager, !scenarioPassed);
+        final result = await _runStep(step, world, scenario, attachmentManager, !scenarioPassed);
         scenarioPassed = result.result == StepExecutionResult.pass;
         if (!_canContinueScenario(result)) {
           scenarioPassed = false;
@@ -300,6 +293,7 @@ class FeatureFileRunner {
   Future<StepResult> _runStep(
     StepRunnable step,
     World world,
+    ScenarioRunnable scenario,
     AttachmentManager attachmentManager,
     bool skipExecution,
   ) async {
@@ -315,8 +309,7 @@ class FeatureFileRunner {
       step.name,
       step.debug,
       table: step.table,
-      multilineString:
-          step.multilineStrings.isNotEmpty ? step.multilineStrings.first : null,
+      multilineString: step.multilineStrings.isNotEmpty ? step.multilineStrings.first : null,
     ));
 
     if (skipExecution) {
@@ -335,7 +328,7 @@ class FeatureFileRunner {
       );
     }
 
-    result = await _hook.onAfterStep(world, step.name, result) ?? result;
+    result = await _hook.onAfterStep(world, scenario, step.name, result) ?? result;
     await _reporter.onStepFinished(
       StepFinishedMessage(
         step.name,

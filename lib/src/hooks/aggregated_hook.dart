@@ -1,8 +1,11 @@
+import '../gherkin/runnables/scenario.dart';
 import '../gherkin/steps/step_run_result.dart';
 import '../gherkin/steps/world.dart';
 import '../reporters/messages.dart';
 import '../configuration.dart';
 import './hook.dart';
+
+export '../gherkin/runnables/scenario.dart';
 
 class AggregatedHook extends Hook {
   Iterable<Hook>? _orderedHooks;
@@ -15,18 +18,16 @@ class AggregatedHook extends Hook {
   }
 
   @override
-  Future<void> onBeforeRun(TestConfiguration config) async =>
-      await _invokeHooks((h) => h.onBeforeRun(config));
+  Future<void> onBeforeRun(TestConfiguration config) async => await _invokeHooks((h) => h.onBeforeRun(config));
 
   /// Run after all scenarios in a test run have completed
   @override
-  Future<void> onAfterRun(TestConfiguration config) async =>
-      await _invokeHooks((h) => h.onAfterRun(config));
+  Future<void> onAfterRun(TestConfiguration config) async => await _invokeHooks((h) => h.onAfterRun(config));
 
   @override
   Future<void> onAfterScenarioWorldCreated(
     World world,
-    String scenario,
+    ScenarioRunnable scenario,
     Iterable<Tag> tags,
   ) async =>
       await _invokeHooks(
@@ -79,13 +80,14 @@ class AggregatedHook extends Hook {
   @override
   Future<StepResult?> onAfterStep(
     World world,
+    ScenarioRunnable scenario,
     String step,
     StepResult result,
   ) async {
     var tempResult = result;
 
     await _invokeHooks((h) async {
-      tempResult = await h.onAfterStep(world, step, tempResult) ?? result;
+      tempResult = await h.onAfterStep(world, scenario, step, tempResult) ?? result;
     });
 
     return tempResult;

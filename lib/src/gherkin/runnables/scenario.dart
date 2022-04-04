@@ -12,6 +12,8 @@ class ScenarioRunnable extends TaggableRunnableBlock {
 
   ScenarioType get scenarioType => ScenarioType.scenario;
 
+  Map<String, String> metadata = {};
+
   ScenarioRunnable(
     this._name,
     RunnableDebugInformation debug,
@@ -30,8 +32,7 @@ class ScenarioRunnable extends TaggableRunnableBlock {
       case EmptyLineRunnable:
         break;
       default:
-        throw Exception(
-            "Unknown runnable child given to Scenario '${child.runtimeType}'");
+        throw Exception("Unknown runnable child given to Scenario '${child.runtimeType}'");
     }
   }
 }

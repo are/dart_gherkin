@@ -1,4 +1,5 @@
 import 'package:gherkin/gherkin.dart';
+import 'package:gherkin/src/gherkin/runnables/scenario.dart';
 
 typedef OnBeforeRunCode = void Function();
 
@@ -30,8 +31,7 @@ class HookMock extends Hook {
   }
 
   @override
-  Future<void> onAfterRun(TestConfiguration config) async =>
-      onAfterRunInvocationCount += 1;
+  Future<void> onAfterRun(TestConfiguration config) async => onAfterRunInvocationCount += 1;
 
   @override
   Future<void> onBeforeScenario(
@@ -44,8 +44,7 @@ class HookMock extends Hook {
   }
 
   @override
-  Future<void> onBeforeStep(World world, String step) async =>
-      onBeforeStepInvocationCount += 1;
+  Future<void> onBeforeStep(World world, String step) async => onBeforeStepInvocationCount += 1;
 
   @override
   Future<void> onAfterScenario(
@@ -60,14 +59,13 @@ class HookMock extends Hook {
   @override
   Future<void> onAfterScenarioWorldCreated(
     World world,
-    String scenario,
+    ScenarioRunnable scenario,
     Iterable<Tag> tags,
   ) async =>
       onAfterScenarioWorldCreatedInvocationCount += 1;
 
   @override
-  Future<StepResult?> onAfterStep(
-      World world, String step, StepResult result) async {
+  Future<StepResult?> onAfterStep(World world, ScenarioRunnable scenario, String step, StepResult result) async {
     onAfterStepInvocationCount += 1;
     return null;
   }

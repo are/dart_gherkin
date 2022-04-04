@@ -102,14 +102,27 @@ class GherkinRunner {
           );
 
           final contents = await config.featureFileReader.read(path);
-          final featureFile = await _parser.parseFeatureFile(
-            contents,
-            path,
-            _reporter,
-            _languageService,
-          );
 
-          featureFiles.add(featureFile);
+          try {
+            final featureFile = await _parser.parseFeatureFile(
+              contents,
+              path,
+              _reporter,
+              _languageService,
+            );
+
+            featureFiles.add(featureFile);
+          } catch (e) {
+            if (e.toString() == "Exception: Unknown runnable child given to Scenario 'TextLineRunnable'" ||
+                e.toString() == "Exception: Unknown runnable child given to Scenario 'ExampleRunnable'") {
+              await _reporter.message(
+                'Unable to parse a feature file at "$path": $e',
+                MessageLevel.error,
+              );
+            } else {
+              rethrow;
+            }
+          }
         }
       }
 
@@ -127,6 +140,7 @@ class GherkinRunner {
 
       return featureFiles;
     } catch (e) {
+      print(e);
       throw Exception(
         'Error when trying to find feature files with patterns'
         '${config.features.map((e) => e.toString()).join(', ')}`'
@@ -144,9 +158,7 @@ class GherkinRunner {
           _executableSteps.add(
             ExecutableStep(
                 GherkinExpression(
-                  s.pattern is RegExp
-                      ? s.pattern as RegExp
-                      : RegExp(s.pattern.toString()),
+                  s.pattern is RegExp ? s.pattern as RegExp : RegExp(s.pattern.toString()),
                   _customParameters,
                 ),
                 s),

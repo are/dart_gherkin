@@ -1,3 +1,5 @@
+import 'package:gherkin/src/gherkin/runnables/scenario.dart';
+
 import '../gherkin/steps/step_run_result.dart';
 import '../gherkin/steps/world.dart';
 import '../reporters/messages.dart';
@@ -20,7 +22,7 @@ abstract class Hook {
   /// Might not be invoked if there is not a world object
   Future<void> onAfterScenarioWorldCreated(
     World world,
-    String scenario,
+    ScenarioRunnable scenario,
     Iterable<Tag> tags,
   ) =>
       Future.value(null);
@@ -45,7 +47,6 @@ abstract class Hook {
   Future<void> onBeforeStep(World world, String step) => Future.value(null);
 
   /// Run after a step has executed
-  Future<StepResult?> onAfterStep(
-          World world, String step, StepResult stepResult) =>
+  Future<StepResult?> onAfterStep(World world, ScenarioRunnable scenario, String step, StepResult stepResult) =>
       Future.value(null);
 }

@@ -1,4 +1,5 @@
 import 'package:gherkin/gherkin.dart';
+import 'package:gherkin/src/gherkin/runnables/scenario.dart';
 import 'package:test/test.dart';
 import '../mocks/hook_mock.dart';
 
@@ -6,14 +7,10 @@ void main() {
   group('orders hooks', () {
     test('executes hooks in correct order', () async {
       final executionOrder = <int>[];
-      final hookOne = HookMock(
-          providedPriority: 0, onBeforeRunCode: () => executionOrder.add(3));
-      final hookTwo = HookMock(
-          providedPriority: 10, onBeforeRunCode: () => executionOrder.add(2));
-      final hookThree = HookMock(
-          providedPriority: 20, onBeforeRunCode: () => executionOrder.add(1));
-      final hookFour = HookMock(
-          providedPriority: -1, onBeforeRunCode: () => executionOrder.add(4));
+      final hookOne = HookMock(providedPriority: 0, onBeforeRunCode: () => executionOrder.add(3));
+      final hookTwo = HookMock(providedPriority: 10, onBeforeRunCode: () => executionOrder.add(2));
+      final hookThree = HookMock(providedPriority: 20, onBeforeRunCode: () => executionOrder.add(1));
+      final hookFour = HookMock(providedPriority: -1, onBeforeRunCode: () => executionOrder.add(4));
 
       final aggregatedHook = AggregatedHook();
       aggregatedHook.addHooks([hookOne, hookTwo, hookThree, hookFour]);
@@ -44,7 +41,7 @@ void main() {
       expect(hookFour.onBeforeStepInvocationCount, 1);
       await aggregatedHook.onAfterScenarioWorldCreated(
         World(),
-        '',
+        ScenarioRunnable('', RunnableDebugInformation.EMPTY()),
         const Iterable.empty(),
       );
       expect(hookOne.onAfterScenarioWorldCreatedInvocationCount, 1);
@@ -53,6 +50,7 @@ void main() {
       expect(hookFour.onAfterScenarioWorldCreatedInvocationCount, 1);
       await aggregatedHook.onAfterStep(
         World(),
+        ScenarioRunnable('', RunnableDebugInformation.EMPTY()),
         '',
         StepResult(
           0,
